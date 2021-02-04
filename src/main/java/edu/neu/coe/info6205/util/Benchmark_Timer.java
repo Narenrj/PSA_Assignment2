@@ -4,6 +4,12 @@
 
 package edu.neu.coe.info6205.util;
 
+import edu.neu.coe.info6205.sort.Sort;
+import edu.neu.coe.info6205.sort.simple.InsertionSort;
+
+import java.lang.reflect.Array;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -31,6 +37,66 @@ import static edu.neu.coe.info6205.util.Utilities.formatWhole;
  */
 public class Benchmark_Timer<T> implements Benchmark<T> {
 
+    //Method to generate a Random value between the given min and max values
+    static int getRandomValue(int Min, int Max)
+    {
+
+        // Get and return the random integer
+        // within Min and Max
+        return ThreadLocalRandom.current().nextInt(Min, Max + 1);
+    }
+
+
+    public static void main(String args[]){
+
+
+        final Supplier<Integer[]> sortedArray = () -> {
+             Integer[] array = (Integer[]) Array.newInstance(Integer.class, 1000);
+             for(int i=0; i<1000; i++) {
+                 array[i] = i + 1;
+             }
+             return array;
+            };
+
+            final Supplier<Integer[]> reversedArray = () -> {
+            Integer[] array = (Integer[]) Array.newInstance(Integer.class, 1000);
+            for(int i=0; i<1000; i++) {
+                array[i] = 1000 - i;
+            }
+            return array;
+            };
+
+            final Supplier<Integer[]> randomArray = () -> {
+            Integer[] array = (Integer[]) Array.newInstance(Integer.class, 1000);
+            for(int i=0; i<1000; i++) {
+                array[i] = getRandomValue(1,1000);
+            }
+            return array;
+            };
+
+            final Supplier<Integer[]> partialArray = () -> {
+            Integer[] array = (Integer[]) Array.newInstance(Integer.class, 1000);
+            for(int i=0; i<500; i++) array[i] = i;
+            for(int i=500; i<1000; i++) {
+                array[i] = getRandomValue(500, 1000);
+            }
+            return array;
+            };
+
+
+            Benchmark<Integer []> b = new Benchmark_Timer<Integer[]>(
+              "Insertion Sort Benchmark",
+              null,
+              new InsertionSort()::sort,
+              null
+            );
+
+            System.out.println("The time taken by the Insertion Sort to sort an already Sorted array of Size 1000 is " + b.run(sortedArray.get(), 50));
+            System.out.println("The time taken by the Insertion Sort to sort an Reversed array of Size 1000 is " + b.run(reversedArray.get(), 50));
+            System.out.println("The time taken by the Insertion Sort to sort an Randomly ordered array of Size 1000 is " + b.run(randomArray.get(), 50));
+            System.out.println("The time taken by the Insertion Sort to sort an Partially sorted array of Size 1000 is " + b.run(partialArray.get(), 50));
+
+    }
     /**
      * Calculate the appropriate number of warmup runs.
      *
