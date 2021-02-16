@@ -7,12 +7,59 @@
  */
 package edu.neu.coe.info6205.union_find;
 
+
+import edu.neu.coe.info6205.bqs.LinkedList;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Scanner;
+import java.util.concurrent.ThreadLocalRandom;
+
 
 /**
  * Height-weighted Quick Union with Path Compression
  */
 public class UF_HWQUPC implements UF {
+
+
+    public static void main(String args[]){
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("Enter the number of elements: ");
+        int n = sc.nextInt();
+
+        System.out.println("Enter the number of runs you want to perform: ");
+        int runs = sc.nextInt();
+
+        int totalValue = 0;
+
+        ArrayList<Integer> pairs = new ArrayList<>();
+
+        for(int i=0; i<runs; i++) {
+            pairs.add(generatePairs(n));
+            totalValue += pairs.get(i);
+        }
+        int meanValue = totalValue/runs;
+
+        System.out.println("The value of the number of pairs generated for "+runs+" runs is "+pairs);
+        System.out.println("The mean value after "+runs+" runs is: "+meanValue);
+
+    }
+    //to generate the number of pairs required to make a component of size 1
+    public static int generatePairs(int n){
+        UF_HWQUPC obj = new UF_HWQUPC(n, true);
+
+        int pairCount = 0;
+
+        while (obj.components() != 1) {
+            int pair_val1 = ThreadLocalRandom.current().nextInt(0, n);
+            int pair_val2 = ThreadLocalRandom.current().nextInt(0, n);
+            obj.connect(pair_val1, pair_val2);
+            pairCount++;
+        }
+        return pairCount;
+    }
+
     /**
      * Ensure that site p is connected to site q,
      *
@@ -82,7 +129,15 @@ public class UF_HWQUPC implements UF {
         validate(p);
         int root = p;
         // TO BE IMPLEMENTED
-        return root;
+        while (root != parent[root])
+            root = parent[root];
+
+        if(pathCompression) {
+            doPathCompression(p);
+            return root;
+        }
+        else
+            return root;
     }
 
     /**
@@ -162,19 +217,36 @@ public class UF_HWQUPC implements UF {
         return parent[i];
     }
 
-    private final int[] parent;   // parent[i] = parent of i
+    private final int[]  parent;   // parent[i] = parent of i
     private final int[] height;   // height[i] = height of subtree rooted at i
     private int count;  // number of components
     private boolean pathCompression;
 
     private void mergeComponents(int i, int j) {
         // TO BE IMPLEMENTED make shorter root point to taller one
+        int rootP = find(i);
+        int rootQ = find(j);
+        if (rootP == rootQ) return;
+
+        // make smaller root point to larger one
+        if (height[rootP] < height[rootQ]) {
+            parent[rootP] = rootQ;
+        }
+        //If Height is equal then point root of one component to another
+        else if(height[rootP] == height[rootQ]){
+            parent[rootQ] = rootP;
+            height[rootP]++;
+        }
+        else {
+            parent[rootQ] = rootP;
+        }
     }
 
     /**
      * This implements the single-pass path-halving mechanism of path compression
      */
-    private void doPathCompression(int i) {
+    private void doPathCompression(int n) {
         // TO BE IMPLEMENTED update parent to value of grandparent
+        parent[n] = parent[parent[n]];
     }
 }
