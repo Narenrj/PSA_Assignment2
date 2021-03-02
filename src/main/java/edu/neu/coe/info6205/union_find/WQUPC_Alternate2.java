@@ -1,14 +1,28 @@
-/*
- * Copyright (c) 2017. Phasmid Software
- */
 package edu.neu.coe.info6205.union_find;
 
+import edu.neu.coe.info6205.util.Benchmark;
+import edu.neu.coe.info6205.util.Benchmark_Timer;
+
+import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- * Weighted Quick Union with Path Compression
- */
-public class WQUPC {
+public class WQUPC_Alternate2 {
+
+
+    public static void main(String args[]){
+
+        Benchmark<Integer> WQU1PC_RUN = new Benchmark_Timer<>("Weighted Quick Union Find Using Single Pass Halving Mechanism by storing Size of elements", run1 -> {
+            WQUPC_Alternate2.generatePairs(100000); });
+
+        System.out.printf("Weighted Quick Union Find Using Single Pass Halving Mechanism by storing Size of elements to union 100000 sites takes the following %.2f milliseconds\n",WQU1PC_RUN.run(0,200));
+
+
+        Benchmark<Integer> WQU2PC_RUN = new Benchmark_Timer<>("Weighted Quick Union Find Using Double Pass Mechanism by storing Size of elements", run2-> {
+            WQUPC.generatePairs(100000); });
+
+        System.out.printf("Weighted Quick Union Find Using Double Pass Mechanism by storing Size of elements to union 100000 sites takes the following %.2f milliseconds\n",WQU2PC_RUN.run(0,200));
+    }
+
     private final int[] parent;   // parent[i] = parent of i
     private final int[] size;   // size[i] = size of subtree rooted at i
     private int count;  // number of components
@@ -21,7 +35,7 @@ public class WQUPC {
      * @param n the number of sites
      * @throws IllegalArgumentException if {@code n < 0}
      */
-    public WQUPC(int n) {
+    public WQUPC_Alternate2(int n) {
         count = n;
         parent = new int[n];
         size = new int[n];
@@ -33,7 +47,7 @@ public class WQUPC {
 
     //to generate the number of pairs required to make a component of size 1
     public static int generatePairs(int n){
-        WQUPC obj = new WQUPC(n);
+        WQUPC_Alternate2 obj = new WQUPC_Alternate2(n);
 
         int pairCount = 0;
 
@@ -74,11 +88,7 @@ public class WQUPC {
         while (root != parent[root]) {
             root = parent[root];
         }
-        while (p != root) {
-            int newp = parent[p];
-            parent[p] = root;
-            p = newp;
-        }
+
         return root;
     }
 
@@ -127,5 +137,4 @@ public class WQUPC {
         }
         count--;
     }
-
 }
